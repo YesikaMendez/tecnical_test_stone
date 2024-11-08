@@ -1,11 +1,11 @@
-README - Prueba Técnica: Sistema de Gestión de Permisos
+#README - Prueba Técnica: Sistema de Gestión de Permisos
 Descripción General
 Este proyecto se desarrolla como una prueba técnica para implementar y gestionar un sistema de permisos basado en distintos niveles de control: entidad, usuario y registro específico. A lo largo del proyecto, se realizaron diversas modificaciones para optimizar la estructura y mejorar el rendimiento, así como para establecer una jerarquía coherente de permisos.
 
-Objetivo
+##Objetivo
 Implementar una estructura de permisos jerárquica y un procedimiento almacenado que permita recuperar los permisos asignados a un usuario a nivel de entidad o de registros específicos dentro de la entidad. Se realizaron cambios en la estructura de las tablas y en el tipo de datos utilizado, además de agregar un procedimiento almacenado que centraliza la consulta de permisos efectivos.
 
-Estructura del Proyecto
+##Estructura del Proyecto
 Modificaciones en la estructura de la base de datos:
 
 Se considero las querys aportadas para la creación de las tablas y conocer la estructura de la base de datos, se realizaron
@@ -13,7 +13,7 @@ Cambio de BIGINT a INT en la tabla EntityCatalog: Se optó por cambiar a INT en 
 
 Eliminación del campo perol_record en la tabla PermiRole: Este campo fue eliminado porque la tabla PermiRole gestiona permisos a nivel de entidad completa, sin especificar un registro individual. Al ser innecesario en este contexto, se eliminó para simplificar la estructura y evitar redundancias en la gestión de permisos.
 
-Jerarquía de Permisos: La estructura de permisos sigue una jerarquía lógica para satisfacer los requisitos del sistema:
+##Jerarquía de Permisos: La estructura de permisos sigue una jerarquía lógica para satisfacer los requisitos del sistema:
 
 Permisos a nivel de entidad: Permiten el acceso a toda la entidad, sin considerar registros específicos. Estos permisos se almacenan en las tablas PermiUser y PermiRole.
 
@@ -21,15 +21,15 @@ Permisos a nivel de registro específico: Permiten definir permisos a registros 
 
 Esta jerarquía asegura que los permisos sean consistentes y reflejen el nivel de acceso deseado para cada usuario o rol.
 
-El procedimiento almacenado GetUserEffectivePermissions
+##El procedimiento almacenado GetUserEffectivePermissions
 
 está diseñado para devolver los permisos asignados a un usuario específico dentro de una entidad en particular, considerando tanto permisos a nivel de entidad como permisos a nivel de registro. La consulta considera diferentes niveles de permisos basados en la relación entre el usuario y los roles asignados, proporcionando un control detallado de los accesos.
 
-Parámetros de Entrada
+##Parámetros de Entrada
 @UserID (INT): ID del usuario para el cual se desean obtener los permisos.
 @EntityID (INT): ID de la entidad sobre la cual se desean verificar los permisos.
 
-Estructura del Procedimiento
+##Estructura del Procedimiento
 El procedimiento consulta varias tablas de permisos y roles para consolidar los permisos efectivos de un usuario. A continuación se detallan las cuatro partes de la consulta y las razones para su inclusión.
 
 Permisos específicos a nivel de registro para el usuario
@@ -65,7 +65,7 @@ DECLARE @EntityID INT = 2; -- Ajusta el ID de la entidad que deseas probar
 EXEC GetUserEffectivePermissions @UserID = @UserID, @EntityID = @EntityID;
 Explicación de la Jerarquía de Permisos
 
-En el video adjunto, se presentan:
+##En el video adjunto, se presentan:
 
 Las decisiones de diseño tomadas para la estructura de la base de datos.
 El funcionamiento y resultado de las consultas en el procedimiento almacenado.
