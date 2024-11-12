@@ -21,37 +21,35 @@ Permisos a nivel de registro específico: Permiten definir permisos a registros 
 
 Esta jerarquía asegura que los permisos sean consistentes y reflejen el nivel de acceso deseado para cada usuario o rol.
 
-##El procedimiento almacenado GetUserEffectivePermissions
+##El procedimiento almacenado GetUserPermissions
 
-está diseñado para devolver los permisos asignados a un usuario específico dentro de una entidad en particular, considerando tanto permisos a nivel de entidad como permisos a nivel de registro. La consulta considera diferentes niveles de permisos basados en la relación entre el usuario y los roles asignados, proporcionando un control detallado de los accesos.
+El procedimiento almacenado GetUserPermissions permite recuperar los permisos de un usuario específico sobre una entidad en el sistema, tanto a nivel de registros individuales como a nivel de la entidad completa. Este procedimiento incluye permisos asignados directamente al usuario y aquellos heredados de los roles a los que pertenece.
 
-##Parámetros de Entrada
-@UserID (INT): ID del usuario para el cual se desean obtener los permisos.
-@EntityID (INT): ID de la entidad sobre la cual se desean verificar los permisos.
+Parámetros de Entrada
+@UserID (INT): Identificador del usuario para el cual se quieren obtener los permisos.
+@EntityID (INT): Identificador de la entidad sobre la cual se validarán los permisos.
+Funcionamiento
+Asignación de Nombre de Tabla y Clave Primaria:
 
-##Estructura del Procedimiento
-El procedimiento consulta varias tablas de permisos y roles para consolidar los permisos efectivos de un usuario. A continuación se detallan las cuatro partes de la consulta y las razones para su inclusión.
+Se consulta la tabla EntityCatalog para asignar el nombre de la tabla asociada a la entidad (@tablename).
+Posteriormente, se obtiene el nombre de la columna de la clave primaria de la tabla (@primary_key_column) correspondiente a la entidad recuperada desde EntityCatalog.
+Con esta configuración, el procedimiento valida que los permisos a nivel de registro existan en su tabla correspondiente, como CostCenter o BranchOffice.
+Construcción y Ejecución de la Consulta Dinámica:
 
-Permisos específicos a nivel de registro para el usuario
+La consulta se construye dinámicamente, permitiendo manejar múltiples tablas y nombres de claves primarias de forma flexible.
+Combina cuatro subconsultas usando UNION ALL:
 
-Se obtienen permisos asignados directamente al usuario para registros específicos dentro de la entidad.
-Tablas involucradas: PermiUserRecord, Permission, y UserCompany.
-Filtra por user_id y entitycatalog_id específicos, considerando solo usuarios activos.
-Permisos a nivel de entidad para el usuario
+Permisos a Nivel de Registro para el Usuario: Recupera permisos específicos de cada registro asociados directamente al usuario.
 
-Se obtienen permisos que el usuario tiene para la entidad en su totalidad, sin especificar un registro particular.
-Tablas involucradas: PermiUser, Permission, y UserCompany.
-También se filtra por user_id y entitycatalog_id, y asegura que el usuario esté activo.
-Permisos específicos a nivel de registro para el rol del usuario
+Permisos a Nivel de Entidad para el Usuario: Recupera permisos generales asignados al usuario en la entidad completa.
 
-Se consultan permisos asignados a roles específicos en la entidad, permitiendo obtener permisos indirectos del usuario mediante su rol.
-Tablas involucradas: PermiRoleRecord, Permission, Role, y UserCompany.
-Considera la relación entre el rol del usuario y la entidad, además de validar que el usuario esté activo.
-Permisos a nivel de entidad para el rol del usuario
+Permisos a Nivel de Registro para el Rol del Usuario: Recupera permisos específicos de cada registro asociados a los roles del usuario.
 
-Se consultan permisos asignados al rol del usuario a nivel de entidad completa.
-Tablas involucradas: PermiRole, Permission, Role, y UserCompany.
-Filtra permisos de rol por entidad, asegurando la activación del usuario y que pertenezca a la misma compañía que el rol.
+Permisos a Nivel de Entidad para el Rol del Usuario: Recupera permisos generales a nivel de entidad asociados a los roles del usuario.
+
+Ejecución Segura:
+
+La consulta se ejecuta usando sp_executesql para un manejo seguro y parametrizado de los datos, lo que protege contra inyecciones SQL y asegura que los permisos se verifiquen correctamente.
 
 
 
